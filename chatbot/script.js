@@ -58,26 +58,11 @@ class Chatbot {
     }
     
     detectApiUrl() {
-        // Auto-detect if we're running on HTTPS or HTTP
-        const protocol = window.location.protocol;
-        const isHttps = protocol === 'https:';
-        
-        if (isHttps) {
-            return 'https://localhost:3443/api/chat';
-        } else {
-            return 'http://localhost:3000/api/chat';
-        }
+        return 'http://localhost:3000/api/chat';
     }
     
     getHealthUrl() {
-        const protocol = window.location.protocol;
-        const isHttps = protocol === 'https:';
-        
-        if (isHttps) {
-            return 'https://localhost:3443/api/health';
-        } else {
-            return 'http://localhost:3000/api/health';
-        }
+        return 'http://localhost:3000/api/health';
     }
     
     async testBackendConnection() {
@@ -86,7 +71,7 @@ class Chatbot {
             const response = await fetch(healthUrl);
             if (response.ok) {
                 console.log('✅ Backend connected successfully');
-                this.addSystemMessage(`Backend connected! Ready to chat with AI responses. (${window.location.protocol}//localhost:${window.location.protocol === 'https:' ? '3443' : '3000'})`);
+                this.addSystemMessage('Backend connected! Ready to chat with AI responses. (http://localhost:3000)');
             } else {
                 console.log('⚠️ Backend connection failed, using fallback responses');
                 this.addSystemMessage('Backend offline. Using basic responses.');

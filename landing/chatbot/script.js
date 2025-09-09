@@ -11,6 +11,7 @@ class FloatingChatbotCore {
         this.messageCount = 0;
         this.apiUrl = this.detectApiUrl();
         this.userId = this.generateUserId();
+        this.conversationHistory = [];
         
         this.initializeEventListeners();
         this.initializeBot();
@@ -51,26 +52,11 @@ class FloatingChatbotCore {
     }
     
     detectApiUrl() {
-        // Auto-detect if we're running on HTTPS or HTTP
-        const protocol = window.location.protocol;
-        const isHttps = protocol === 'https:';
-        
-        if (isHttps) {
-            return 'https://localhost:3443/api/chat';
-        } else {
-            return 'http://localhost:3000/api/chat';
-        }
+        return 'http://localhost:3000/api/chat';
     }
     
     getHealthUrl() {
-        const protocol = window.location.protocol;
-        const isHttps = protocol === 'https:';
-        
-        if (isHttps) {
-            return 'https://localhost:3443/api/health';
-        } else {
-            return 'http://localhost:3000/api/health';
-        }
+        return 'http://localhost:3000/api/health';
     }
     
     async testBackendConnection() {
@@ -80,7 +66,7 @@ class FloatingChatbotCore {
             if (response.ok) {
                 console.log('✅ Backend connected successfully');
                 if (window.floatingChatbot) {
-                    window.floatingChatbot.addSystemMessage(`Backend connected! Ready to chat with AI responses. (${window.location.protocol}//localhost:${window.location.protocol === 'https:' ? '3443' : '3000'})`);
+                    window.floatingChatbot.addSystemMessage('Backend connected! Ready to chat with AI responses. (http://localhost:3000)');
                 }
             } else {
                 console.log('⚠️ Backend connection failed, using fallback responses');
@@ -100,8 +86,9 @@ class FloatingChatbotCore {
         const message = this.messageInput.value.trim();
         if (!message) return;
         
-        // Add user message to chat
+        // Add user message to chat and conversation history
         this.addMessage(message, 'user');
+        this.conversationHistory.push({ role: 'user', content: message });
         
         // Clear input
         this.messageInput.value = '';
@@ -112,15 +99,24 @@ class FloatingChatbotCore {
         
         try {
             // Try to get response from backend
-            const response = await this.getBotResponse(message);
+            const responseData = await this.getBotResponse(message);
             this.hideTypingIndicator();
-            this.addMessage(response, 'bot');
+            
+            // Add bot response to conversation history
+            this.conversationHistory.push({ role: 'assistant', content: responseData.response });
+            
+            // Add response to chat with source indicator
+            this.addMessage(responseData.response, 'bot', responseData.responseSource);
+            
+            // Log response source for debugging
+            console.log(`Response source: ${responseData.responseSource}`);
+            
         } catch (error) {
             console.error('Error getting bot response:', error);
             this.hideTypingIndicator();
             // Fallback to local response
             const fallbackResponse = this.getFallbackResponse(message);
-            this.addMessage(fallbackResponse, 'bot');
+            this.addMessage(fallbackResponse, 'bot', 'fallback');
         }
     }
     
@@ -132,7 +128,8 @@ class FloatingChatbotCore {
             },
             body: JSON.stringify({
                 message: message,
-                userId: this.userId
+                userId: this.userId,
+                conversationHistory: this.conversationHistory.slice(-10) // Keep last 10 messages for context
             })
         });
         
@@ -141,7 +138,7 @@ class FloatingChatbotCore {
         }
         
         const data = await response.json();
-        return data.response;
+        return data; // Return full response object
     }
     
     getFallbackResponse(message) {

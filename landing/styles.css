@@ -606,6 +606,43 @@ body {
     color: #9ca3af;
 }
 
+/* Response Source Indicators */
+.response-source {
+    margin-top: 0.5rem;
+    text-align: right;
+}
+
+.source-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 10px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.source-badge.openai {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+}
+
+.source-badge.predefined {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+}
+
+.source-badge.fallback {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+}
+
+.source-badge i {
+    font-size: 0.6rem;
+}
+
 .typing-indicator {
     display: none;
     padding: 0.5rem 1rem;

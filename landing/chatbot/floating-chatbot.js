@@ -137,7 +137,7 @@ class FloatingChatbot {
     }
     
     // Method to add new message (called by main chatbot)
-    addMessage(content, sender) {
+    addMessage(content, sender, responseSource = null) {
         const messagesContainer = document.getElementById('chatbotMessages');
         const messageDiv = document.createElement('div');
         messageDiv.className = `message ${sender}-message new-message`;
@@ -157,6 +157,14 @@ class FloatingChatbot {
         const messageBubble = document.createElement('div');
         messageBubble.className = 'message-bubble';
         messageBubble.innerHTML = `<p>${this.escapeHtml(content)}</p>`;
+        
+        // Add response source indicator for bot messages
+        if (sender === 'bot' && responseSource) {
+            const sourceIndicator = document.createElement('div');
+            sourceIndicator.className = 'response-source';
+            sourceIndicator.innerHTML = this.getSourceIndicator(responseSource);
+            messageBubble.appendChild(sourceIndicator);
+        }
         
         const messageTime = document.createElement('div');
         messageTime.className = 'message-time';
@@ -180,6 +188,16 @@ class FloatingChatbot {
         setTimeout(() => {
             messageDiv.classList.remove('new-message');
         }, 300);
+    }
+    
+    getSourceIndicator(responseSource) {
+        const indicators = {
+            'openai': '<span class="source-badge openai"><i class="fas fa-brain"></i> AI</span>',
+            'predefined': '<span class="source-badge predefined"><i class="fas fa-list"></i> Predefined</span>',
+            'fallback': '<span class="source-badge fallback"><i class="fas fa-exclamation-triangle"></i> Fallback</span>'
+        };
+        
+        return indicators[responseSource] || '';
     }
     
     scrollToBottom() {
