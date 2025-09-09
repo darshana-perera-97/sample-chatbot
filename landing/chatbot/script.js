@@ -1,13 +1,11 @@
-// Chatbot JavaScript functionality
-class Chatbot {
+// Floating Chatbot JavaScript functionality
+class FloatingChatbotCore {
     constructor() {
-        this.chatMessages = document.getElementById('chatMessages');
+        this.chatMessages = document.getElementById('chatbotMessages');
         this.messageInput = document.getElementById('messageInput');
         this.sendBtn = document.getElementById('sendBtn');
         this.typingIndicator = document.getElementById('typingIndicator');
         this.attachBtn = document.getElementById('attachBtn');
-        this.minimizeBtn = document.getElementById('minimizeBtn');
-        this.closeBtn = document.getElementById('closeBtn');
         
         this.isTyping = false;
         this.messageCount = 0;
@@ -36,13 +34,8 @@ class Chatbot {
             this.messageInput.style.height = this.messageInput.scrollHeight + 'px';
         });
         
-        // Header button events
-        this.minimizeBtn.addEventListener('click', () => this.minimizeChat());
-        this.closeBtn.addEventListener('click', () => this.closeChat());
+        // Attach button
         this.attachBtn.addEventListener('click', () => this.showAttachOptions());
-        
-        // Focus input on load
-        this.messageInput.focus();
     }
     
     initializeBot() {
@@ -86,29 +79,21 @@ class Chatbot {
             const response = await fetch(healthUrl);
             if (response.ok) {
                 console.log('✅ Backend connected successfully');
-                this.addSystemMessage(`Backend connected! Ready to chat with AI responses. (${window.location.protocol}//localhost:${window.location.protocol === 'https:' ? '3443' : '3000'})`);
+                if (window.floatingChatbot) {
+                    window.floatingChatbot.addSystemMessage(`Backend connected! Ready to chat with AI responses. (${window.location.protocol}//localhost:${window.location.protocol === 'https:' ? '3443' : '3000'})`);
+                }
             } else {
                 console.log('⚠️ Backend connection failed, using fallback responses');
-                this.addSystemMessage('Backend offline. Using basic responses.');
+                if (window.floatingChatbot) {
+                    window.floatingChatbot.addSystemMessage('Backend offline. Using basic responses.');
+                }
             }
         } catch (error) {
             console.log('⚠️ Backend not available, using fallback responses');
-            this.addSystemMessage('Backend offline. Using basic responses.');
+            if (window.floatingChatbot) {
+                window.floatingChatbot.addSystemMessage('Backend offline. Using basic responses.');
+            }
         }
-    }
-    
-    addSystemMessage(message) {
-        const messageDiv = document.createElement('div');
-        messageDiv.className = 'message system-message';
-        messageDiv.innerHTML = `
-            <div class="message-content">
-                <div class="message-bubble system-bubble">
-                    <p><i class="fas fa-info-circle"></i> ${message}</p>
-                </div>
-            </div>
-        `;
-        this.chatMessages.appendChild(messageDiv);
-        this.scrollToBottom();
     }
     
     async sendMessage() {
@@ -173,85 +158,20 @@ class Chatbot {
     }
     
     addMessage(content, sender) {
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `message ${sender}-message new-message`;
-        
-        const avatar = document.createElement('div');
-        avatar.className = 'message-avatar';
-        
-        if (sender === 'user') {
-            avatar.innerHTML = '<i class="fas fa-user"></i>';
-        } else {
-            avatar.innerHTML = '<i class="fas fa-robot"></i>';
+        if (window.floatingChatbot) {
+            window.floatingChatbot.addMessage(content, sender);
         }
-        
-        const messageContent = document.createElement('div');
-        messageContent.className = 'message-content';
-        
-        const messageBubble = document.createElement('div');
-        messageBubble.className = 'message-bubble';
-        messageBubble.innerHTML = `<p>${this.escapeHtml(content)}</p>`;
-        
-        const messageTime = document.createElement('div');
-        messageTime.className = 'message-time';
-        messageTime.textContent = this.getCurrentTime();
-        
-        messageContent.appendChild(messageBubble);
-        messageContent.appendChild(messageTime);
-        
-        messageDiv.appendChild(avatar);
-        messageDiv.appendChild(messageContent);
-        
-        this.chatMessages.appendChild(messageDiv);
-        this.scrollToBottom();
-        
-        // Remove new-message class after animation
-        setTimeout(() => {
-            messageDiv.classList.remove('new-message');
-        }, 300);
     }
     
-    
     showTypingIndicator() {
-        this.typingIndicator.classList.add('show');
-        this.scrollToBottom();
+        if (window.floatingChatbot) {
+            window.floatingChatbot.showTypingIndicator();
+        }
     }
     
     hideTypingIndicator() {
-        this.typingIndicator.classList.remove('show');
-    }
-    
-    scrollToBottom() {
-        this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
-    }
-    
-    getCurrentTime() {
-        const now = new Date();
-        return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    }
-    
-    escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
-    
-    minimizeChat() {
-        // Add minimize functionality
-        const container = document.querySelector('.chatbot-container');
-        container.style.transform = 'scale(0.8)';
-        container.style.opacity = '0.7';
-        
-        setTimeout(() => {
-            container.style.transform = 'scale(1)';
-            container.style.opacity = '1';
-        }, 200);
-    }
-    
-    closeChat() {
-        // Add close functionality
-        if (confirm('Are you sure you want to close the chat?')) {
-            document.body.style.display = 'none';
+        if (window.floatingChatbot) {
+            window.floatingChatbot.hideTypingIndicator();
         }
     }
     
@@ -263,7 +183,10 @@ class Chatbot {
 
 // Initialize chatbot when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    new Chatbot();
+    // Wait for floating chatbot to be initialized
+    setTimeout(() => {
+        window.floatingChatbotCore = new FloatingChatbotCore();
+    }, 100);
 });
 
 // Add some fun interactions
@@ -271,15 +194,10 @@ document.addEventListener('keydown', (e) => {
     // Press Ctrl+Enter for new line in input
     if (e.ctrlKey && e.key === 'Enter') {
         const input = document.getElementById('messageInput');
-        input.value += '\n';
-        input.focus();
-    }
-});
-
-// Add click outside to focus input
-document.addEventListener('click', (e) => {
-    if (!e.target.closest('.chatbot-container')) {
-        document.getElementById('messageInput').focus();
+        if (input) {
+            input.value += '\n';
+            input.focus();
+        }
     }
 });
 
@@ -292,15 +210,10 @@ const easterEggs = {
             'You\'re a true gamer! 🎯'
         ];
         const message = messages[Math.floor(Math.random() * messages.length)];
-        document.getElementById('chatMessages').innerHTML += `
-            <div class="message bot-message new-message">
-                <div class="message-avatar"><i class="fas fa-robot"></i></div>
-                <div class="message-content">
-                    <div class="message-bubble"><p>${message}</p></div>
-                    <div class="message-time">${new Date().toLocaleTimeString()}</div>
-                </div>
-            </div>
-        `;
+        
+        if (window.floatingChatbot) {
+            window.floatingChatbot.addMessage(message, 'bot');
+        }
     }
 };
 

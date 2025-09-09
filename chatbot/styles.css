@@ -134,6 +134,30 @@ body {
     animation: fadeInUp 0.3s ease;
 }
 
+.system-message {
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+
+.system-message .message-content {
+    max-width: 100%;
+    align-items: center;
+}
+
+.system-bubble {
+    background: #e0f2fe;
+    color: #0277bd;
+    border: 1px solid #b3e5fc;
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+    border-radius: 12px;
+    text-align: center;
+}
+
+.system-bubble i {
+    margin-right: 0.5rem;
+}
+
 @keyframes fadeInUp {
     from {
         opacity: 0;
