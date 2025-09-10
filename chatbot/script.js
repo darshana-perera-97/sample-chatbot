@@ -58,11 +58,13 @@ class Chatbot {
     }
     
     detectApiUrl() {
-        return 'http://localhost:3000/api/chat';
+        return "https://sample-chatbot-a4wo.onrender.com/api/chat";
+        // return 'http://localhost:3000/api/chat';
     }
     
     getHealthUrl() {
-        return 'http://localhost:3000/api/health';
+        return "https://sample-chatbot-a4wo.onrender.com/api/health";
+        // return 'http://localhost:3000/api/health';
     }
     
     async testBackendConnection() {
@@ -71,7 +73,7 @@ class Chatbot {
             const response = await fetch(healthUrl);
             if (response.ok) {
                 console.log('✅ Backend connected successfully');
-                this.addSystemMessage('Backend connected! Ready to chat with AI responses. (http://localhost:3000)');
+                this.addSystemMessage('Ready to chat with AI responses.');
             } else {
                 console.log('⚠️ Backend connection failed, using fallback responses');
                 this.addSystemMessage('Backend offline. Using basic responses.');

@@ -52,12 +52,11 @@ class FloatingChatbotCore {
     }
     
     detectApiUrl() {
-        return "https://sample-chatbot-a4wo.onrender.com/api/chat";
-        // return 'http://localhost:3000/api/chat';
+        return 'http://localhost:3000/api/chat';
     }
     
     getHealthUrl() {
-        return "https://sample-chatbot-a4wo.onrender.com/api/health";
+        return 'http://localhost:3000/api/health';
     }
     
     async testBackendConnection() {
