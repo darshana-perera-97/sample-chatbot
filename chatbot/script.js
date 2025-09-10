@@ -58,12 +58,14 @@ class Chatbot {
     }
     
     detectApiUrl() {
-        return "https://sample-chatbot-a4wo.onrender.com/api/chat";
+        return "http://93.127.136.228:5000/api/chat";
+        // return "https://sample-chatbot-a4wo.onrender.com/api/chat";
         // return 'http://localhost:3000/api/chat';
     }
     
     getHealthUrl() {
-        return "https://sample-chatbot-a4wo.onrender.com/api/health";
+        return "http://93.127.136.228:5000/api/health";
+        // return "https://sample-chatbot-a4wo.onrender.com/api/health";
         // return 'http://localhost:3000/api/health';
     }
     
